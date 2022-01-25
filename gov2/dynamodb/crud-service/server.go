@@ -45,11 +45,7 @@ func main() {
 	}
 
 	dbConn := db.GetDDBConnection(tableName, awsConfig)
-
-	app.Use(func(c *fiber.Ctx) error {
-		c.Locals("database", dbConn)
-		return c.Next()
-	})
+	db.SetupDBConnection(dbConn)
 
 	_ = api.GetApi(app)
 

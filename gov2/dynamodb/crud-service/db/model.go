@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"net/url"
 	"time"
 
@@ -9,30 +10,36 @@ import (
 
 type (
 	Link struct {
-		Id        string
-		Uri       string
-		DeleteKey string
-		CreatedOn time.Time
-		NumHits   uint64
+		Id        string    `dynamodbav:"Id" json:"id"`
+		Uri       string    `dynamodbav:"Uri" json:"uri"`
+		Email     string    `dynamodbav:"Email" json:"-"`
+		DeleteKey string    `dynamodbav:"DeleteKey" json:"-"`
+		CreatedOn time.Time `dynamodbav:"CreatedOn" json:"createdOn"`
+		NumHits   uint64    `dynamodbav:"Hits" json:"hits"`
 	}
 )
 
-func CreateLink(longUrl string) (*Link, error) {
+func CreateLink(longUrl string, email string) (*Link, error) {
 
 	// Validate the url:
-
 	mUrl, err := url.Parse(longUrl)
-	createTime := time.Now()
-	linkId := xid.NewWithTime(createTime)
-	deleteKey := xid.New().String()
 
 	if err != nil {
 		return nil, err
 	}
 
+	if email == "" {
+		return nil, errors.New("invalid email")
+	}
+
+	createTime := time.Now()
+	linkId := xid.NewWithTime(createTime)
+	deleteKey := xid.New().String()
+
 	mLink := &Link{
 		Id:        linkId.String(),
 		DeleteKey: deleteKey,
+		Email:     email,
 		Uri:       (*mUrl).String(),
 		CreatedOn: createTime,
 		NumHits:   0,

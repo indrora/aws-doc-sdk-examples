@@ -1,32 +1,48 @@
 package api
 
 import (
+	"errors"
+
 	"example.aws/gov2/dynamodb/crud-service/db"
 	"github.com/gofiber/fiber/v2"
 )
 
 type CreateRequest struct {
-	Url string `json:"url"`
+	Url   string `json:"url"`
+	Email string `json:"email"`
 }
 type CreateResponse struct {
-	Id        string `json:"id"`
-	DeleteKey string `json:"deleteKey`
+	Success   bool   `json:"success"`
+	Error     string `json:"error"`
+	Id        string `json:"id",omitempty`
+	DeleteKey string `json:"deleteKey,omitempty`
 }
 
 func CreateLink(c *fiber.Ctx) error {
 	request := CreateRequest{}
+	link := &db.Link{}
+	err := errors.New("no error")
 
-	if err := c.BodyParser(request); err != nil {
-		return err
+	if err = c.BodyParser(request); err != nil {
+		goto failure
 	}
-
-	link, err := db.CreateLink(request.Url)
-	if err != nil {
-		return err
+	if link, err = db.CreateLink(request.Url, request.Email); err != nil {
+		goto failure
 	}
 
 	// add to the database
 
+	if err = (*db.DB).Add(*link); err != nil {
+
+	}
+
 	return c.JSON(*link)
+
+failure:
+	c.Status(400)
+	return c.JSON(CreateResponse{
+		Success: false,
+		Error:   err.Error(),
+	})
 
 }
