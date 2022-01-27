@@ -19,24 +19,24 @@ type (
 	}
 )
 
-func CreateLink(longUrl string, email string) (*Link, error) {
+func CreateLink(longUrl string, email string) (Link, error) {
 
 	// Validate the url:
 	mUrl, err := url.Parse(longUrl)
 
 	if err != nil {
-		return nil, err
+		return Link{}, err
 	}
 
 	if email == "" {
-		return nil, errors.New("invalid email")
+		return Link{}, errors.New("invalid email")
 	}
 
 	createTime := time.Now()
 	linkId := xid.NewWithTime(createTime)
 	deleteKey := xid.New().String()
 
-	mLink := &Link{
+	mLink := Link{
 		Id:        linkId.String(),
 		DeleteKey: deleteKey,
 		Email:     email,

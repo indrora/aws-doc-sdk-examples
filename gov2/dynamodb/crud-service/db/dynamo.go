@@ -30,7 +30,7 @@ func GetDDBConnection(tablename string, conf aws.Config) *DynamoConnection {
 }
 
 // Create a link
-func (db *DynamoConnection) Add(link Link) error {
+func (db DynamoConnection) Add(link Link) error {
 
 	marshalledLink, err := attributevalue.MarshalMap(link)
 
@@ -53,7 +53,7 @@ func (db *DynamoConnection) Add(link Link) error {
 }
 
 // List recent links
-func (db *DynamoConnection) ListByEmail(email string) []Link {
+func (db DynamoConnection) ListByEmail(email string) []Link {
 
 	filterExpression := expression.Name("Email").Equal(expression.Value(email))
 
@@ -85,7 +85,7 @@ func (db *DynamoConnection) ListByEmail(email string) []Link {
 }
 
 // Get a link by its ID
-func (db *DynamoConnection) Get(id string) *Link {
+func (db DynamoConnection) Get(id string) *Link {
 	response, err := db.client.GetItem(context.Background(), &dynamodb.GetItemInput{
 		TableName: &db.TableName,
 		Key: map[string]types.AttributeValue{
@@ -118,7 +118,7 @@ func (db *DynamoConnection) Get(id string) *Link {
 }
 
 // Destroy a link by its ID
-func (db *DynamoConnection) Delete(id string) bool {
+func (db DynamoConnection) Delete(id string) bool {
 	// check if the link exists
 	link := db.Get(id)
 	if link == nil {
@@ -140,7 +140,7 @@ func (db *DynamoConnection) Delete(id string) bool {
 }
 
 // increment the view count on a link by its ID
-func (db *DynamoConnection) Increment(id string) {
+func (db DynamoConnection) Increment(id string) {
 	_, err := db.client.UpdateItem(context.Background(), &dynamodb.UpdateItemInput{
 		TableName: &db.TableName,
 		Key: map[string]types.AttributeValue{

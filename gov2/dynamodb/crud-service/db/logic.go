@@ -15,9 +15,4 @@ type DbConnection interface {
 
 const DB_CONNECTION_LOCAL = "databaseConnnection"
 
-var DB *DbConnection
-
-func SetupDBConnection(conn *DbConnection) {
-
-	DB = conn
-}
+var DB DbConnection

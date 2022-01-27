@@ -24,7 +24,7 @@ func GetLinkStats(c *fiber.Ctx) error {
 
 	// Get the link
 
-	link := (*db.DB).Get(id)
+	link := (db.DB).Get(id)
 
 	if link == nil {
 		return SendJSONResponse(c, 404, ResponseBase{

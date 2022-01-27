@@ -32,7 +32,7 @@ func DeleteLink(c *fiber.Ctx) error {
 		return SendJSONError(c, errors.New("no delete key specified"))
 	}
 
-	link := (*db.DB).Get(id)
+	link := (db.DB).Get(id)
 
 	if link == nil {
 		return SendJSONResponse(c, 404, DeleteResponse{
@@ -52,7 +52,7 @@ func DeleteLink(c *fiber.Ctx) error {
 		})
 	}
 
-	if (*db.DB).Delete(id) {
+	if (db.DB).Delete(id) {
 		return SendJSONResponse(c, 200, DeleteResponse{
 			Id: id,
 			ResponseBase: ResponseBase{
