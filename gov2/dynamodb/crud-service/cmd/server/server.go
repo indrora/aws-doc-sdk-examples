@@ -2,12 +2,17 @@ package main
 
 import (
 	"context"
+	"net/http"
 	"os"
+
+	"embed"
 
 	"example.aws/gov2/dynamodb/crud-service/api"
 	"example.aws/gov2/dynamodb/crud-service/db"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -17,14 +22,17 @@ var (
 	DEBUG bool
 )
 
-
-//go:embed static/*
+//go:embed web/*
 var embedDirStatic embed.FS
 
 func main() {
 	app := fiber.New()
 
-	err : = godotenv.Load()
+	app.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
+
+	err := godotenv.Load()
 	if err != nil {
 		log.Info().AnErr("error", err).Msg("Failed to load dotenv!")
 	}
@@ -51,24 +59,29 @@ func main() {
 
 	db.DB = dbConn
 
-	_ = api.GetApi(app)
+	group := app.Group("/api")
 
-	app.Get("/:id", api.DoRedirect)
+	group.Put("/link", api.CreateLink)
+	group.Delete("/link/:id", api.DeleteLink)
+	group.Get("/link/:id", api.GetLinkStats)
+	group.Put("/link/report", api.GetLinks)
+
+	app.Get("/go/:id", api.DoRedirect)
 
 	app.Use("/", filesystem.New(filesystem.Config{
-		Root: http.FS(f),
+		Root:       http.FS(embedDirStatic),
+		PathPrefix: "web",
+		Browse:     true,
 	}))
 
 	// Access file "image.png" under `static/` directory via URL: `http://<server>/static/image.png`.
 	// Without `PathPrefix`, you have to access it via URL:
 	// `http://<server>/static/static/image.png`.
 	app.Use("/static", filesystem.New(filesystem.Config{
-		Root: http.FS(embedDirStatic),
-		PathPrefix: "static",
-		Browse: true,
+		Root:       http.FS(embedDirStatic),
+		PathPrefix: "web/static",
+		Browse:     true,
 	}))
-
-	log.Fatal(app.Listen(":3000"))
 
 	app.Listen(":8080")
 }

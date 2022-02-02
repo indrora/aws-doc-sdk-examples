@@ -65,8 +65,10 @@ func (db DynamoConnection) ListByEmail(email string) []Link {
 	}
 
 	result, err := db.client.Scan(context.Background(), &dynamodb.ScanInput{
-		TableName:        &db.TableName,
-		FilterExpression: expr.Filter(),
+		TableName:                 &db.TableName,
+		FilterExpression:          expr.Filter(),
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
 	})
 
 	if err != nil {
@@ -105,7 +107,7 @@ func (db DynamoConnection) Get(id string) *Link {
 		return nil
 	}
 
-	mLink := Link{}
+	mLink := new(Link)
 
 	err = attributevalue.UnmarshalMap(response.Item, mLink)
 
@@ -114,7 +116,7 @@ func (db DynamoConnection) Get(id string) *Link {
 		return nil
 	}
 
-	return &mLink
+	return mLink
 }
 
 // Destroy a link by its ID
@@ -148,7 +150,7 @@ func (db DynamoConnection) Increment(id string) {
 				Value: id,
 			},
 		},
-		UpdateExpression: aws.String("ADD NumHits :v"),
+		UpdateExpression: aws.String("ADD Hits :v"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":v": &types.AttributeValueMemberN{
 				Value: "1",

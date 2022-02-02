@@ -2,10 +2,11 @@ You requested the list of URLs that you have shortened using the
 service at {{.baseurl}}
 
 {{$bu := .baseurl}}
-{{range .Urls}}
+{{range .links}}
+{{.}}
 Url: {{.Url}}
 Created on {{.CreatedOn}}
-Short URL: {{$bu}}/{{.Id}}
+Short URL: {{$bu}}/go/{{.Id}}
 Deletion Key: {{.DeleteKey}}
 {{end}}
 

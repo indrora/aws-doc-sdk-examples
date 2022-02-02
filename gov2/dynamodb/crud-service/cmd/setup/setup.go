@@ -50,16 +50,17 @@ func main() {
 			&dynamodb.CreateTableInput{
 				AttributeDefinitions: []ddbtypes.AttributeDefinition{
 					{AttributeName: aws.String("Id"), AttributeType: ddbtypes.ScalarAttributeTypeS},
-					{AttributeName: aws.String("Uri"), AttributeType: ddbtypes.ScalarAttributeTypeS},
+					/*{AttributeName: aws.String("Uri"), AttributeType: ddbtypes.ScalarAttributeTypeS},
 					{AttributeName: aws.String("Email"), AttributeType: ddbtypes.ScalarAttributeTypeS},
 					{AttributeName: aws.String("DeleteKey"), AttributeType: ddbtypes.ScalarAttributeTypeS},
 					{AttributeName: aws.String("createdOn"), AttributeType: ddbtypes.ScalarAttributeTypeS},
-					{AttributeName: aws.String("NumHits"), AttributeType: ddbtypes.ScalarAttributeTypeN},
+					{AttributeName: aws.String("NumHits"), AttributeType: ddbtypes.ScalarAttributeTypeN},*/
 				},
 				KeySchema: []ddbtypes.KeySchemaElement{
 					{AttributeName: aws.String("Id"), KeyType: ddbtypes.KeyTypeHash},
 				},
-				TableName: &tableName,
+				TableName:   &tableName,
+				BillingMode: ddbtypes.BillingModePayPerRequest,
 			})
 		if err != nil {
 			log.Err(err).Msg("Failed to create table...")

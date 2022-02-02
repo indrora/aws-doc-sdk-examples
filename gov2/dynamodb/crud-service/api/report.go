@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ses"
 	"github.com/aws/aws-sdk-go-v2/service/ses/types"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
 
 var emailBodyTemplate *template.Template
@@ -36,6 +37,10 @@ func init() {
 
 }
 
+type GetLinksRequest struct {
+	Email string `json:"email"`
+}
+
 const INVALIDEMAIL = "###INVALIDEMAIL@@INVALID.INVALID##"
 
 func GetLinks(c *fiber.Ctx) error {
@@ -53,12 +58,29 @@ func GetLinks(c *fiber.Ctx) error {
 		})
 	}
 
-	email := c.Params("email", INVALIDEMAIL)
+	requestbody := new(GetLinksRequest)
+
+	err = c.BodyParser(requestbody)
+	if err != nil {
+		log.Fatal().AnErr("err", err).Msg("Failed to parse body")
+		return err
+	}
+
+	email := requestbody.Email
+
+	log.Debug().Str("email", requestbody.Email).Msg("Sending report")
+
 	if email == INVALIDEMAIL {
 		return SendJSONError(c, errors.New("no or invalid email specified"))
 	}
 
 	links := (db.DB).ListByEmail(email)
+
+	for _, link := range links {
+		log.Debug().Str("id", link.Id).
+			Str("email", link.Email).
+			Str("deleteKey", link.DeleteKey).Msg("link debug")
+	}
 
 	sesClient := ses.NewFromConfig(conf)
 
@@ -70,6 +92,7 @@ func GetLinks(c *fiber.Ctx) error {
 	})
 
 	emailBodyString := emailBodyBuffer.String()
+	log.Debug().Str("emailbody", emailBodyString).Msg("debug")
 
 	_, err = sesClient.SendEmail(context.Background(), &ses.SendEmailInput{
 		Destination: &types.Destination{
@@ -93,6 +116,7 @@ func GetLinks(c *fiber.Ctx) error {
 	})
 
 	if err != nil {
+		log.Err(err).Msg("Failed to send email")
 		return SendJSONError(c, errors.New("failed to send email"))
 	}
 
