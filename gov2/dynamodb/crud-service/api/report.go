@@ -112,7 +112,7 @@ func GetLinks(c *fiber.Ctx) error {
 				Charset: aws.String("utf-8"),
 			},
 		},
-		Source: aws.String("gangwere@amazon.com"),
+		Source: &emailFromAddress,
 	})
 
 	if err != nil {

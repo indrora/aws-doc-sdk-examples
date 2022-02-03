@@ -64,7 +64,7 @@ func main() {
 	group.Put("/link", api.CreateLink)
 	group.Delete("/link/:id", api.DeleteLink)
 	group.Get("/link/:id", api.GetLinkStats)
-	group.Put("/link/report", api.GetLinks)
+	group.Get("/link/report", api.GetLinks)
 
 	app.Get("/go/:id", api.DoRedirect)
 
