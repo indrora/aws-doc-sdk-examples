@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "metadata-tool"
+version = "0.1.0"
+description = "A tool to interact with metadata in the SOS project"
+authors = ["Morgan Gangwere <gangwere@amazon.com>"]
+license = "Apache-2.0"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "^8.0.4"
+yamale = "^4.0.4"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry.scripts]
+metatool = "metatool"
